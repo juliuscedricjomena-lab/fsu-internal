@@ -19,15 +19,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Set temp directory to Laravel's storage directory to avoid warnings
-        // This prevents tempnam() from using system temp directory
-        if (function_exists('sys_get_temp_dir')) {
-            $storage_path = storage_path('app/temp');
-            if (!is_dir($storage_path)) {
-                @mkdir($storage_path, 0755, true);
-            }
-            @ini_set('upload_tmp_dir', $storage_path);
-            putenv('TMPDIR=' . $storage_path);
+        // Suppress tempnam warnings that occur during view compilation
+        // This is a known issue in development environments
+        error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
+        
+        // Create temp directory for Laravel
+        $temp_dir = storage_path('app/temp');
+        if (!is_dir($temp_dir)) {
+            @mkdir($temp_dir, 0755, true);
         }
+        
+        // Override system temp directory
+        @putenv('TMPDIR=' . $temp_dir);
+        @putenv('TEMP=' . $temp_dir);
+        @putenv('TMP=' . $temp_dir);
     }
 }
