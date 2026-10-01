@@ -11,14 +11,19 @@ RUN apk add --no-cache \
     unzip \
     mysql-client \
     libzip-dev \
+    redis \
     $PHPIZE_DEPS
 
-# Install PHP extensions
+# Install PHP extensions including Redis
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
     bcmath \
     zip
+
+# Install PHP Redis extension
+RUN pecl install redis && \
+    docker-php-ext-enable redis
 
 # Remove build dependencies to reduce image size
 RUN apk del $PHPIZE_DEPS
