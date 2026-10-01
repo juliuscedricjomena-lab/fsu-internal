@@ -37,8 +37,17 @@ COPY . /app
 # Install application dependencies (if composer.json exists)
 RUN if [ -f composer.json ]; then composer install --no-dev --no-interaction; fi
 
-# Set permissions
-RUN chown -R www-data:www-data /app
+# Create necessary directories with proper permissions
+RUN mkdir -p storage/framework/views \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p storage/inertia-devtools \
+    && mkdir -p storage/app/temp \
+    && mkdir -p bootstrap/cache
+
+# Set permissions for Laravel
+RUN chown -R www-data:www-data /app && \
+    chmod -R 755 storage && \
+    chmod -R 755 bootstrap/cache
 
 EXPOSE 9000
 
