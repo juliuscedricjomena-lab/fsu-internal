@@ -1,0 +1,50 @@
+# Laravel
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/bootstrap/cache
+.env
+.env.backup
+.env.*.php
+.env.testing
+.php_cs
+.php_cs.cache
+auth.json
+
+# IDEs
+.idea
+.vscode
+.DS_Store
+*.swp
+*.swo
+*~
+.project
+.buildpath
+.settings
+
+# Testing
+/coverage
+.phpunit.result.cache
+
+# Composer
+vendor/
+composer.lock
+package-lock.json
+
+# Build artifacts
+/public/js
+/public/css
+/public/mix-manifest.json
+/dist
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Local dev
+.env.local
+.env.*.local
