@@ -34,13 +34,13 @@ class DashboardController extends Controller
 
             // Define modules by role
             $roleModules = [
-                1 => ['Collection', 'Finance', 'Disbursement', 'Reports', 'Admin'],  // ALL_ACCESS
-                2 => ['Collection', 'Finance', 'Disbursement', 'Reports', 'Admin'],  // ADMINISTRATOR
-                3 => ['Collection', 'Finance', 'Disbursement', 'Reports'],           // CO_ADMIN
-                4 => ['Collection', 'Reports'],                                      // COLLECTION_STAFF
-                5 => ['Finance', 'Reports'],                                         // FINANCE_STAFF
-                6 => ['Disbursement', 'Reports'],                                    // DISBURSEMENT_OFFICER
-                7 => ['Reports'],                                                    // VIEWER
+                1 => ['Collection', 'Finance', 'Remittance', 'Disbursement', 'Reports', 'Admin'],  // ALL_ACCESS
+                2 => ['Collection', 'Finance', 'Remittance', 'Disbursement', 'Reports', 'Admin'],  // ADMINISTRATOR
+                3 => ['Collection', 'Finance', 'Remittance', 'Disbursement', 'Reports'],           // CO_ADMIN
+                4 => ['Collection', 'Reports'],                                                     // COLLECTION_STAFF
+                5 => ['Finance', 'Remittance', 'Reports'],                                          // FINANCE_STAFF
+                6 => ['Disbursement', 'Reports'],                                                   // DISBURSEMENT_OFFICER
+                7 => ['Reports'],                                                                   // VIEWER
             ];
 
             $modules = $roleModules[$roleId] ?? [];
@@ -65,6 +65,7 @@ class DashboardController extends Controller
         $descriptions = [
             'Collection' => 'Manage collection of funds and receivables',
             'Finance' => 'Financial reporting and analysis',
+            'Remittance' => 'Upload and manage PAG-IBIG and PHILHEALTH remittances',
             'Disbursement' => 'Manage fund disbursements and payments',
             'Reports' => 'View and generate financial reports',
             'Admin' => 'System administration and settings',
@@ -81,6 +82,7 @@ class DashboardController extends Controller
         $icons = [
             'Collection' => '💰',
             'Finance' => '📊',
+            'Remittance' => '📤',
             'Disbursement' => '💸',
             'Reports' => '📈',
             'Admin' => '⚙️',

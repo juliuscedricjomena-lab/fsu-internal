@@ -95,6 +95,8 @@ services:
     container_name: fsu-node
     restart: unless-stopped
     working_dir: /app
+    # Run as the host user so files created in node_modules/.vite are not root-owned
+    user: "1000:1000"
     volumes:
       - ./:/app
     ports:
@@ -103,7 +105,8 @@ services:
       - VITE_PORT=5173
     networks:
       - fsu-network
-    command: sh -c "npm install && npm run dev"
+    # --host makes Vite listen on 0.0.0.0 inside the container so the browser can reach it
+    command: sh -c "npm install && npm run dev -- --host"
     depends_on:
       - app
 

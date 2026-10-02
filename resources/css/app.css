@@ -7,7 +7,9 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-fsu-primary: #003a70;
-    --color-fsu-secondary: #0066cc;
-    --color-fsu-accent: #ff6b35;
+    /* PNPA / Finance Service Unit maroon palette */
+    --color-fsu-primary: #6d1a1a;
+    --color-fsu-secondary: #4a0f0f;
+    --color-fsu-accent: #8b1e1e;
+    --color-fsu-gold: #c9a227;
 }

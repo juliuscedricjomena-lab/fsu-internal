@@ -1,0 +1,1 @@
+var e=`/build/assets/logo-Yzb65UwB.png`,t=`/build/assets/fsu-D7Q4J4Qg.webp`;export{e as n,t};

@@ -27,7 +27,14 @@ class RoleMiddleware
             }
         }
 
-        // User doesn't have required role
-        abort(403, 'Unauthorized - Insufficient role permissions');
+        // User doesn't have the required role. For JSON/API clients return a
+        // 403; for normal page visits, send them back to the dashboard with a
+        // message rather than a bare error page.
+        if ($request->expectsJson()) {
+            abort(403, 'Unauthorized - Insufficient role permissions');
+        }
+
+        return redirect()->route('dashboard')
+            ->with('error', 'You do not have access to that module.');
     }
 }

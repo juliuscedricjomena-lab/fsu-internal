@@ -2,13 +2,11 @@
   <AppLayout>
     <div class="min-h-screen bg-gray-50">
       <!-- Header -->
-      <div class="bg-white border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 py-6">
-          <Link href="/dashboard" class="text-fsu-primary hover:text-fsu-secondary text-sm font-medium mb-2 inline-block">← Back to Dashboard</Link>
-          <h1 class="text-3xl font-bold text-gray-900">📈 Reports Module</h1>
-          <p class="text-gray-600 mt-2">View and generate financial reports</p>
-        </div>
-      </div>
+      <ModuleHeader
+        module="Reports"
+        title="Reports Module"
+        subtitle="View and generate financial reports"
+      />
 
       <!-- Main Content -->
       <div class="max-w-7xl mx-auto px-4 py-12">
@@ -57,8 +55,8 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
 import AppLayout from '../../Components/Layout/AppLayout.vue'
+import ModuleHeader from '../../Components/Common/ModuleHeader.vue'
 </script>
 
 <style scoped>
