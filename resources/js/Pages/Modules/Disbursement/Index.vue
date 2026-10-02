@@ -11,8 +11,8 @@
         <!-- Stat tiles -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           <div class="stat">
-            <p class="stat-label">Disbursed Today</p>
-            <p class="stat-value">{{ peso(stats.today) }}</p>
+            <p class="stat-label">Disbursed This Year</p>
+            <p class="stat-value">{{ peso(stats.year) }}</p>
           </div>
           <div class="stat">
             <p class="stat-label">This Month</p>
@@ -24,28 +24,36 @@
           </div>
         </div>
 
-        <!-- Main navigation: Records + Reports -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <!-- Main navigation: Records + Budget Matrix + Particulars -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Link href="/modules/disbursement/records" class="nav-card nav-records">
             <div class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
             </div>
             <div>
               <h3 class="nav-title">Records</h3>
-              <p class="nav-desc">Record and browse disbursement transactions</p>
+              <p class="nav-desc">Record and browse disbursements</p>
             </div>
-            <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </Link>
 
-          <Link href="/modules/disbursement/reports" class="nav-card nav-reports">
+          <Link href="/modules/disbursement/matrix" class="nav-card nav-matrix">
             <div class="nav-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18" /><path d="M7 14l4-4 3 3 5-6" /></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18M9 3v18M15 3v18" /></svg>
             </div>
             <div>
-              <h3 class="nav-title">Reports</h3>
-              <p class="nav-desc">Generate daily, monthly, or date-range reports</p>
+              <h3 class="nav-title">Budget Matrix</h3>
+              <p class="nav-desc">Monthly totals by expense class</p>
             </div>
-            <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </Link>
+
+          <Link href="/modules/disbursement/particulars" class="nav-card nav-particulars">
+            <div class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h8" /></svg>
+            </div>
+            <div>
+              <h3 class="nav-title">CO Particulars</h3>
+              <p class="nav-desc">Capital Outlay project detail</p>
+            </div>
           </Link>
         </div>
 
@@ -67,7 +75,7 @@
               <tr class="text-left text-slate-500 border-b border-slate-200">
                 <th class="th">Date</th>
                 <th class="th">Payee</th>
-                <th class="th">Category</th>
+                <th class="th">Expense Class</th>
                 <th class="th">Reference #</th>
                 <th class="th text-right">Amount</th>
               </tr>
@@ -76,7 +84,7 @@
               <tr v-for="r in recent" :key="r.id" class="border-b border-slate-100 last:border-0">
                 <td class="td">{{ formatDate(r.disbursement_date) }}</td>
                 <td class="td font-medium text-slate-800">{{ r.payee }}</td>
-                <td class="td"><span class="chip">{{ r.category }}</span></td>
+                <td class="td"><span class="chip">{{ r.expense_class }}</span></td>
                 <td class="td">{{ r.reference_no }}</td>
                 <td class="td text-right font-semibold">{{ peso(r.amount) }}</td>
               </tr>
@@ -112,11 +120,10 @@ const formatDate = (d) => (d ? new Date(d).toLocaleDateString('en-US', { year: '
 .nav-icon { display: inline-flex; align-items: center; justify-content: center; height: 3.2rem; width: 3.2rem; border-radius: 1rem; color: #fff; flex-shrink: 0; }
 .nav-icon svg { height: 1.6rem; width: 1.6rem; }
 .nav-records .nav-icon { background: linear-gradient(135deg, #7c3aed, #a855f7); }
-.nav-reports .nav-icon { background: linear-gradient(135deg, #d97706, #f59e0b); }
-.nav-title { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
-.nav-desc { font-size: 0.85rem; color: #64748b; }
-.nav-arrow { height: 1.3rem; width: 1.3rem; color: #cbd5e1; margin-left: auto; transition: transform 0.18s ease, color 0.18s ease; }
-.nav-card:hover .nav-arrow { color: #7c3aed; transform: translateX(4px); }
+.nav-matrix .nav-icon { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+.nav-particulars .nav-icon { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.nav-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+.nav-desc { font-size: 0.82rem; color: #64748b; }
 
 .btn-primary { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 0.55rem 1rem; border-radius: 0.6rem; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); transition: opacity 0.15s ease; }
 .btn-primary:hover { opacity: 0.92; }

@@ -17,10 +17,17 @@
             <input v-model="local.search" type="text" class="input" placeholder="Payee, reference, or purpose" @keyup.enter="applyFilters" />
           </div>
           <div>
-            <label class="label">Category</label>
-            <select v-model="local.category" class="input">
+            <label class="label">Fund Type</label>
+            <select v-model="local.fund_type" class="input">
               <option value="">All</option>
-              <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+              <option v-for="(label, key) in fundTypes" :key="key" :value="key">{{ label }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="label">Group</label>
+            <select v-model="local.expense_group" class="input">
+              <option value="">All</option>
+              <option v-for="(label, key) in expenseGroups" :key="key" :value="key">{{ label }}</option>
             </select>
           </div>
           <div>
@@ -49,10 +56,10 @@
               <tr class="text-left text-slate-500 border-b border-slate-200">
                 <th class="th">Date</th>
                 <th class="th">Payee</th>
-                <th class="th">Category</th>
-                <th class="th">Purpose</th>
+                <th class="th">Expense Class</th>
+                <th class="th">Particular</th>
                 <th class="th">Reference #</th>
-                <th class="th">Prepared By</th>
+                <th class="th">Mode</th>
                 <th class="th text-right">Amount</th>
                 <th class="th text-center">Doc</th>
               </tr>
@@ -61,10 +68,10 @@
               <tr v-for="r in records.data" :key="r.id" class="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                 <td class="td">{{ formatDate(r.disbursement_date) }}</td>
                 <td class="td font-medium text-slate-800">{{ r.payee }}</td>
-                <td class="td"><span class="chip">{{ r.category }}</span></td>
-                <td class="td max-w-xs truncate" :title="r.purpose">{{ r.purpose }}</td>
+                <td class="td"><span class="chip">{{ r.expense_class }}</span></td>
+                <td class="td max-w-xs truncate" :title="r.project_particular">{{ r.project_particular || '—' }}</td>
                 <td class="td">{{ r.reference_no }}</td>
-                <td class="td">{{ r.user?.name ?? '—' }}</td>
+                <td class="td">{{ r.mode_of_disbursement || '—' }}</td>
                 <td class="td text-right font-semibold">{{ peso(r.amount) }}</td>
                 <td class="td text-center">
                   <a v-if="r.attachment_path" :href="`/modules/disbursement/records/${r.id}/attachment`" target="_blank" class="link">View</a>
@@ -99,18 +106,20 @@ import ModuleHeader from '../../../Components/Common/ModuleHeader.vue'
 
 const props = defineProps({
   records: { type: Object, required: true },
-  categories: { type: Array, default: () => [] },
+  fundTypes: { type: Object, default: () => ({}) },
+  expenseGroups: { type: Object, default: () => ({}) },
   filters: { type: Object, default: () => ({}) },
 })
 
 const local = reactive({
   search: props.filters.search ?? '',
-  category: props.filters.category ?? '',
+  fund_type: props.filters.fund_type ?? '',
+  expense_group: props.filters.expense_group ?? '',
   from: props.filters.from ?? '',
   to: props.filters.to ?? '',
 })
 
-const hasFilters = computed(() => local.search || local.category || local.from || local.to)
+const hasFilters = computed(() => local.search || local.fund_type || local.expense_group || local.from || local.to)
 
 const applyFilters = () => {
   const query = Object.fromEntries(Object.entries(local).filter(([, v]) => v))
@@ -119,7 +128,8 @@ const applyFilters = () => {
 
 const clearFilters = () => {
   local.search = ''
-  local.category = ''
+  local.fund_type = ''
+  local.expense_group = ''
   local.from = ''
   local.to = ''
   router.get('/modules/disbursement/records', {}, { preserveState: true, replace: true })

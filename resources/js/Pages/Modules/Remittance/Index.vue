@@ -97,15 +97,53 @@
                 <td class="td">{{ formatSize(f.size) }}</td>
                 <td class="td">{{ f.user?.name ?? '—' }}</td>
                 <td class="td">{{ formatDateTime(f.created_at) }}</td>
-                <td class="td text-center whitespace-nowrap">
-                  <a :href="`/modules/remittance/${f.id}/download`" class="link">Download</a>
-                  <button class="link-danger ml-3" @click="remove(f)">Discard</button>
+                <td class="td">
+                  <div class="action-group">
+                    <button class="icon-btn icon-preview" title="Preview" @click="openPreview(f)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
+                    </button>
+                    <a :href="`/modules/remittance/${f.id}/download`" class="icon-btn icon-download" title="Download">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" /></svg>
+                    </a>
+                    <button class="icon-btn icon-discard" title="Discard" @click="remove(f)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M10 11v6M14 11v6" /></svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <!-- Preview modal -->
+      <Teleport to="body">
+        <div v-if="preview.open" class="preview-backdrop" @click.self="closePreview">
+          <div class="preview-dialog">
+            <div class="preview-head">
+              <div class="min-w-0">
+                <p class="preview-name">{{ preview.file?.original_name }}</p>
+                <p class="preview-meta">{{ preview.file?.type }} • {{ formatSize(preview.file?.size) }}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <a :href="`/modules/remittance/${preview.file?.id}/download`" class="preview-dl" title="Download">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" /></svg>
+                </a>
+                <button class="preview-close" @click="closePreview" title="Close">✕</button>
+              </div>
+            </div>
+            <div class="preview-body">
+              <img v-if="isImage" :src="previewUrl" :alt="preview.file?.original_name" class="preview-img" />
+              <iframe v-else-if="isPdf" :src="previewUrl" class="preview-frame" title="File preview"></iframe>
+              <div v-else class="preview-fallback">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-12 w-12 text-slate-300"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+                <p>No inline preview available for this file type.</p>
+                <a :href="`/modules/remittance/${preview.file?.id}/download`" class="btn-primary">Download to view</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Teleport>
     </div>
   </AppLayout>
 </template>
@@ -175,6 +213,24 @@ const remove = (file) => {
   router.delete(`/modules/remittance/${file.id}`, { preserveScroll: true })
 }
 
+// Preview
+const preview = reactive({ open: false, file: null })
+
+const openPreview = (file) => {
+  preview.file = file
+  preview.open = true
+}
+const closePreview = () => {
+  preview.open = false
+  preview.file = null
+}
+
+const previewUrl = computed(() => (preview.file ? `/modules/remittance/${preview.file.id}/preview` : ''))
+
+const extOf = (name) => (name?.split('.').pop() || '').toLowerCase()
+const isImage = computed(() => ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extOf(preview.file?.original_name)))
+const isPdf = computed(() => extOf(preview.file?.original_name) === 'pdf')
+
 const formatSize = (bytes) => {
   if (!bytes) return '—'
   const kb = bytes / 1024
@@ -220,8 +276,32 @@ const formatDateTime = (d) => (d ? new Date(d).toLocaleString('en-US', { dateSty
 .chip { font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 9999px; }
 .chip-pagibig { color: #9a3412; background: #ffedd5; }
 .chip-philhealth { color: #0369a1; background: #e0f2fe; }
-.link { color: #0ea5e9; font-weight: 600; }
-.link:hover { text-decoration: underline; }
-.link-danger { color: #dc2626; font-weight: 600; }
-.link-danger:hover { text-decoration: underline; }
+/* Icon action buttons */
+.action-group { display: inline-flex; align-items: center; gap: 0.4rem; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 2rem; width: 2rem; border-radius: 0.55rem; border: 1px solid #e2e8f0;
+  background: #fff; color: #64748b; transition: all 0.15s ease; cursor: pointer;
+}
+.icon-btn svg { height: 1.05rem; width: 1.05rem; }
+.icon-preview:hover { color: #0369a1; border-color: #7dd3fc; background: #f0f9ff; }
+.icon-download:hover { color: #15803d; border-color: #86efac; background: #f0fdf4; }
+.icon-discard:hover { color: #dc2626; border-color: #fca5a5; background: #fef2f2; }
+
+/* Preview modal */
+.preview-backdrop { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(2px); }
+.preview-dialog { display: flex; flex-direction: column; width: 100%; max-width: 900px; height: 85vh; background: #fff; border-radius: 1rem; overflow: hidden; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5); }
+.preview-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid #eef0f3; }
+.preview-name { font-weight: 700; color: #0f172a; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preview-meta { font-size: 0.78rem; color: #94a3b8; }
+.preview-dl { display: inline-flex; align-items: center; justify-content: center; height: 2rem; width: 2rem; border-radius: 0.55rem; border: 1px solid #e2e8f0; color: #15803d; }
+.preview-dl:hover { background: #f0fdf4; border-color: #86efac; }
+.preview-dl svg { height: 1.05rem; width: 1.05rem; }
+.preview-close { height: 2rem; width: 2rem; border-radius: 0.55rem; color: #94a3b8; font-size: 1rem; }
+.preview-close:hover { background: #f1f5f9; color: #475569; }
+.preview-body { flex: 1; min-height: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: auto; }
+.preview-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.preview-frame { width: 100%; height: 100%; border: 0; }
+.preview-fallback { display: flex; flex-direction: column; align-items: center; gap: 0.9rem; color: #64748b; font-size: 0.9rem; padding: 2rem; text-align: center; }
+.btn-primary { font-size: 0.85rem; font-weight: 700; color: #fff; padding: 0.55rem 1.2rem; border-radius: 0.6rem; background: linear-gradient(135deg, #0369a1, #0ea5e9); box-shadow: 0 6px 16px rgba(3, 105, 161, 0.3); }
 </style>

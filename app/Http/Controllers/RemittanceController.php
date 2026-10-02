@@ -57,6 +57,21 @@ class RemittanceController extends Controller
     }
 
     /**
+     * Stream a remittance file inline for in-browser preview
+     * (authenticated users only).
+     */
+    public function preview(RemittanceFile $remittance)
+    {
+        abort_unless(Storage::disk('local')->exists($remittance->stored_path), 404);
+
+        // Inline disposition so the browser renders PDFs/images instead of
+        // downloading them.
+        return Storage::disk('local')->response($remittance->stored_path, $remittance->original_name, [
+            'Content-Disposition' => 'inline; filename="'.addslashes($remittance->original_name).'"',
+        ]);
+    }
+
+    /**
      * Download a remittance file (authenticated users only).
      */
     public function download(RemittanceFile $remittance)

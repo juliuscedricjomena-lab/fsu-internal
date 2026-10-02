@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
             Route::get('/', [RemittanceController::class, 'index'])->name('index');
             Route::post('/', [RemittanceController::class, 'store'])->name('store');
+            Route::get('/{remittance}/preview', [RemittanceController::class, 'preview'])->name('preview');
             Route::get('/{remittance}/download', [RemittanceController::class, 'download'])->name('download');
             Route::delete('/{remittance}', [RemittanceController::class, 'destroy'])->name('destroy');
         });
@@ -66,7 +67,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/records/create', [DisbursementController::class, 'create'])->name('create');
             Route::post('/records', [DisbursementController::class, 'store'])->name('store');
             Route::get('/records/{disbursement}/attachment', [DisbursementController::class, 'attachment'])->name('attachment');
-            Route::get('/reports', [DisbursementController::class, 'reports'])->name('reports');
+            Route::get('/matrix', [DisbursementController::class, 'matrix'])->name('matrix');
+            Route::get('/particulars', [DisbursementController::class, 'particulars'])->name('particulars');
         });
 
     // Reports module — available to every authenticated role.
