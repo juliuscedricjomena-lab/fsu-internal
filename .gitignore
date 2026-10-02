@@ -3,7 +3,8 @@
 /public/hot
 /public/storage
 /storage/*.key
-/bootstrap/cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
 .env
 .env.backup
 .env.*.php
@@ -34,6 +35,7 @@ vendor/
 /public/js
 /public/css
 /public/mix-manifest.json
+/public/fonts-manifest.dev.json
 /dist
 
 # Logs
