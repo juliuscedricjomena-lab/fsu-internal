@@ -29,8 +29,6 @@ auth.json
 
 # Composer
 vendor/
-composer.lock
-package-lock.json
 
 # Build artifacts
 /public/js
