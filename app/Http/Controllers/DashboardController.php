@@ -34,23 +34,28 @@ class DashboardController extends Controller
 
             // Define modules by role
             $roleModules = [
-                1 => ['Collection', 'Finance', 'Remittance', 'Disbursement', 'Reports', 'Admin'],  // ALL_ACCESS
-                2 => ['Collection', 'Finance', 'Remittance', 'Disbursement', 'Reports', 'Admin'],  // ADMINISTRATOR
-                3 => ['Collection', 'Finance', 'Remittance', 'Disbursement', 'Reports'],           // CO_ADMIN
-                4 => ['Collection', 'Reports'],                                                     // COLLECTION_STAFF
-                5 => ['Finance', 'Remittance', 'Reports'],                                          // FINANCE_STAFF
-                6 => ['Disbursement', 'Reports'],                                                   // DISBURSEMENT_OFFICER
-                7 => ['Reports'],                                                                   // VIEWER
+                1 => ['Collection', 'Pay & Allowances', 'Remittance', 'Disbursement', 'Admin'],  // ALL_ACCESS
+                2 => ['Collection', 'Pay & Allowances', 'Remittance', 'Disbursement', 'Admin'],  // ADMINISTRATOR
+                3 => ['Collection', 'Pay & Allowances', 'Remittance', 'Disbursement'],           // CO_ADMIN
+                4 => ['Collection'],                                                             // COLLECTION_STAFF
+                5 => ['Pay & Allowances', 'Remittance'],                                         // FINANCE_STAFF
+                6 => ['Disbursement'],                                                           // DISBURSEMENT_OFFICER
+                7 => [],                                                                         // VIEWER
             ];
 
             $modules = $roleModules[$roleId] ?? [];
         }
 
+        // Explicit route slugs for modules whose path differs from the name.
+        $paths = [
+            'Pay & Allowances' => 'pay-allowances',
+        ];
+
         // Return module data with metadata
-        return collect($modules)->map(function ($module) {
+        return collect($modules)->map(function ($module) use ($paths) {
             return [
                 'name' => $module,
-                'path' => strtolower($module),
+                'path' => $paths[$module] ?? strtolower($module),
                 'description' => $this->getModuleDescription($module),
                 'icon' => $this->getModuleIcon($module),
             ];
@@ -64,10 +69,9 @@ class DashboardController extends Controller
     {
         $descriptions = [
             'Collection' => 'Manage collection of funds and receivables',
-            'Finance' => 'Financial reporting and analysis',
+            'Pay & Allowances' => 'Upload payslips and compute pay with days of duty',
             'Remittance' => 'Upload and manage PAG-IBIG and PHILHEALTH remittances',
             'Disbursement' => 'Manage fund disbursements and payments',
-            'Reports' => 'View and generate financial reports',
             'Admin' => 'System administration and settings',
         ];
 
@@ -81,10 +85,9 @@ class DashboardController extends Controller
     {
         $icons = [
             'Collection' => '💰',
-            'Finance' => '📊',
+            'Pay & Allowances' => '💵',
             'Remittance' => '📤',
             'Disbursement' => '💸',
-            'Reports' => '📈',
             'Admin' => '⚙️',
         ];
 

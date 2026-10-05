@@ -128,6 +128,72 @@ class DisbursementController extends Controller
     }
 
     /**
+     * Show the edit form for an existing disbursement record.
+     */
+    public function edit(DisbursementRecord $disbursement)
+    {
+        return Inertia::render('Modules/Disbursement/Edit', [
+            'record' => $disbursement,
+            'fundTypes' => DisbursementRecord::FUND_TYPES,
+            'expenseGroups' => DisbursementRecord::EXPENSE_GROUPS,
+            'expenseClasses' => DisbursementRecord::EXPENSE_CLASSES,
+            'groupsByFund' => DisbursementRecord::GROUPS_BY_FUND,
+            'modes' => DisbursementRecord::MODES_OF_DISBURSEMENT,
+        ]);
+    }
+
+    /**
+     * Update an existing disbursement record.
+     */
+    public function update(Request $request, DisbursementRecord $disbursement)
+    {
+        $validated = $request->validate([
+            'fund_type' => ['required', Rule::in(array_keys(DisbursementRecord::FUND_TYPES))],
+            'expense_group' => ['required', Rule::in(array_keys(DisbursementRecord::EXPENSE_GROUPS))],
+            'expense_class' => ['required', 'string', 'max:255'],
+            'project_particular' => ['nullable', 'string', 'max:1000'],
+            'payee' => ['required', 'string', 'max:255'],
+            'reference_no' => ['required', 'string', 'max:100'],
+            'disbursement_date' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'mode_of_disbursement' => ['nullable', 'string', 'max:100'],
+            'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'remove_attachment' => ['nullable', 'boolean'],
+        ]);
+
+        $path = $disbursement->attachment_path;
+
+        // Replace the attachment if a new one is uploaded; or remove it if asked.
+        if ($request->hasFile('attachment')) {
+            if ($path && Storage::disk('local')->exists($path)) {
+                Storage::disk('local')->delete($path);
+            }
+            $path = $request->file('attachment')->store('disbursement/attachments', 'local');
+        } elseif ($request->boolean('remove_attachment') && $path) {
+            if (Storage::disk('local')->exists($path)) {
+                Storage::disk('local')->delete($path);
+            }
+            $path = null;
+        }
+
+        $disbursement->update([
+            'fund_type' => $validated['fund_type'],
+            'expense_group' => $validated['expense_group'],
+            'expense_class' => $validated['expense_class'],
+            'project_particular' => $validated['project_particular'] ?? null,
+            'payee' => $validated['payee'],
+            'reference_no' => $validated['reference_no'],
+            'disbursement_date' => $validated['disbursement_date'],
+            'amount' => $validated['amount'],
+            'mode_of_disbursement' => $validated['mode_of_disbursement'] ?? null,
+            'attachment_path' => $path,
+        ]);
+
+        return redirect()->route('disbursement.records')
+            ->with('success', 'Disbursement record updated successfully.');
+    }
+
+    /**
      * Stream an attachment to authenticated users only.
      */
     public function attachment(DisbursementRecord $disbursement)

@@ -3,8 +3,8 @@
     <div class="min-h-screen bg-slate-50">
       <ModuleHeader
         module="Disbursement"
-        title="New Disbursement"
-        subtitle="Record a disbursement under its fund and expense class"
+        title="Edit Disbursement"
+        subtitle="Update an existing disbursement record"
         back-to="/modules/disbursement/records"
         back-label="Back to Records"
       />
@@ -22,7 +22,6 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <!-- Expense group (filtered by fund type) -->
               <div>
                 <label class="label">Expense Group <span class="req">*</span></label>
                 <select v-model="form.expense_group" class="input" :class="{ 'input-error': errors.expense_group }" @change="onGroupChange">
@@ -32,7 +31,6 @@
                 <p v-if="errors.expense_group" class="err">{{ errors.expense_group }}</p>
               </div>
 
-              <!-- Expense class (cascades from group) -->
               <div>
                 <label class="label">Expense Class <span class="req">*</span></label>
                 <select v-model="form.expense_class" class="input" :class="{ 'input-error': errors.expense_class }" :disabled="!form.expense_group">
@@ -43,7 +41,7 @@
               </div>
             </div>
 
-            <!-- Project / particular (esp. for Capital Outlay) -->
+            <!-- Project / particular -->
             <div>
               <label class="label">
                 Project / Particular
@@ -54,13 +52,11 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <!-- Payee -->
               <div>
                 <label class="label">Payee <span class="req">*</span></label>
                 <input v-model="form.payee" type="text" class="input" :class="{ 'input-error': errors.payee }" placeholder="Name of payee" />
                 <p v-if="errors.payee" class="err">{{ errors.payee }}</p>
               </div>
-              <!-- Reference No -->
               <div>
                 <label class="label">Reference Number <span class="req">*</span></label>
                 <input v-model="form.reference_no" type="text" class="input" :class="{ 'input-error': errors.reference_no }" placeholder="DV / ADA No." />
@@ -69,13 +65,11 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              <!-- Date -->
               <div>
                 <label class="label">Date <span class="req">*</span></label>
                 <input v-model="form.disbursement_date" type="date" class="input" :class="{ 'input-error': errors.disbursement_date }" />
                 <p v-if="errors.disbursement_date" class="err">{{ errors.disbursement_date }}</p>
               </div>
-              <!-- Amount -->
               <div>
                 <label class="label">Amount <span class="req">*</span></label>
                 <div class="amount-wrap">
@@ -84,7 +78,6 @@
                 </div>
                 <p v-if="errors.amount" class="err">{{ errors.amount }}</p>
               </div>
-              <!-- Mode of disbursement -->
               <div>
                 <label class="label">Mode of Disbursement</label>
                 <select v-model="form.mode_of_disbursement" class="input">
@@ -97,10 +90,24 @@
             <!-- Attachment -->
             <div>
               <label class="label">Supporting Document</label>
-              <label class="file-drop" :class="{ 'has-file': form.attachment }">
+
+              <!-- Existing attachment indicator -->
+              <div v-if="record.attachment_path && !form.attachment && !form.remove_attachment" class="existing-file">
+                <a :href="`/modules/disbursement/records/${record.id}/attachment`" target="_blank" class="existing-link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+                  View current document
+                </a>
+                <button type="button" class="remove-btn" @click="form.remove_attachment = true">Remove</button>
+              </div>
+              <p v-else-if="form.remove_attachment && !form.attachment" class="removed-note">
+                Current document will be removed on save.
+                <button type="button" class="undo-btn" @click="form.remove_attachment = false">Undo</button>
+              </p>
+
+              <label class="file-drop mt-2" :class="{ 'has-file': form.attachment }">
                 <input type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png" @change="onFile" />
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-violet-600"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M17 8l-5-5-5 5" /><path d="M12 3v12" /></svg>
-                <span v-if="!form.attachment" class="file-text">Choose File — PDF, JPG, or PNG (max 5MB)</span>
+                <span v-if="!form.attachment" class="file-text">{{ record.attachment_path ? 'Replace document' : 'Choose File' }} — PDF, JPG, or PNG (max 5MB)</span>
                 <span v-else class="file-text font-medium text-slate-800">{{ form.attachment.name }}</span>
               </label>
               <p v-if="errors.attachment" class="err">{{ errors.attachment }}</p>
@@ -110,7 +117,7 @@
             <div class="flex items-center justify-end gap-3 pt-2">
               <Link href="/modules/disbursement/records" class="btn-ghost">Cancel</Link>
               <button type="submit" :disabled="processing" class="btn-primary">
-                {{ processing ? 'Submitting...' : 'Submit' }}
+                {{ processing ? 'Saving...' : 'Save Changes' }}
               </button>
             </div>
           </form>
@@ -127,6 +134,7 @@ import AppLayout from '../../../Components/Layout/AppLayout.vue'
 import ModuleHeader from '../../../Components/Common/ModuleHeader.vue'
 
 const props = defineProps({
+  record: { type: Object, required: true },
   fundTypes: { type: Object, default: () => ({}) },
   expenseGroups: { type: Object, default: () => ({}) },
   expenseClasses: { type: Object, default: () => ({}) },
@@ -139,16 +147,17 @@ const errors = computed(() => page.props.errors ?? {})
 const processing = ref(false)
 
 const form = reactive({
-  fund_type: 'appropriated',
-  expense_group: '',
-  expense_class: '',
-  project_particular: '',
-  payee: '',
-  reference_no: '',
-  disbursement_date: new Date().toISOString().slice(0, 10),
-  amount: '',
-  mode_of_disbursement: '',
+  fund_type: props.record.fund_type,
+  expense_group: props.record.expense_group,
+  expense_class: props.record.expense_class,
+  project_particular: props.record.project_particular ?? '',
+  payee: props.record.payee,
+  reference_no: props.record.reference_no,
+  disbursement_date: (props.record.disbursement_date ?? '').slice(0, 10),
+  amount: props.record.amount,
+  mode_of_disbursement: props.record.mode_of_disbursement ?? '',
   attachment: null,
+  remove_attachment: false,
 })
 
 const availableGroups = computed(() => props.groupsByFund[form.fund_type] ?? [])
@@ -168,20 +177,12 @@ const onFile = (e) => {
 
 const submit = () => {
   processing.value = true
-
-  // Build a clean payload; only send the attachment (and force multipart)
-  // when a file is actually selected.
-  const payload = { ...form }
-  if (!payload.attachment) {
-    delete payload.attachment
-  }
-
-  router.post('/modules/disbursement/records', payload, {
-    forceFormData: !!form.attachment,
-    onError: (errs) => {
-      // Scroll to the first error so validation issues are visible.
-      console.warn('Disbursement save failed:', errs)
-    },
+  // The update route accepts POST (file uploads need multipart POST, not PUT).
+  router.post(`/modules/disbursement/records/${props.record.id}`, {
+    ...form,
+    remove_attachment: form.remove_attachment ? 1 : 0,
+  }, {
+    forceFormData: true,
     onFinish: () => {
       processing.value = false
     },
@@ -202,6 +203,15 @@ const submit = () => {
 .amount-wrap { position: relative; display: flex; align-items: center; }
 .peso { position: absolute; left: 0.85rem; color: #64748b; font-weight: 600; }
 .input-amount { padding-left: 1.9rem; }
+
+.existing-file { display: flex; align-items: center; gap: 1rem; padding: 0.6rem 0.85rem; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 0.6rem; }
+.existing-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; font-weight: 600; color: #7c3aed; }
+.existing-link:hover { text-decoration: underline; }
+.remove-btn { margin-left: auto; font-size: 0.8rem; font-weight: 600; color: #dc2626; }
+.remove-btn:hover { text-decoration: underline; }
+.removed-note { font-size: 0.82rem; color: #b45309; }
+.undo-btn { font-weight: 700; color: #7c3aed; margin-left: 0.4rem; }
+.undo-btn:hover { text-decoration: underline; }
 
 .file-drop { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; border: 1.5px dashed #cbd5e1; border-radius: 0.7rem; padding: 1rem 1.1rem; transition: border-color 0.15s, background 0.15s; }
 .file-drop:hover, .file-drop.has-file { border-color: #7c3aed; background: #f5f3ff; }

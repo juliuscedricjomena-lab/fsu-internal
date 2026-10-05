@@ -39,6 +39,10 @@ export const moduleIcons = {
     'M22 2 11 13',
     'M22 2 15 22l-4-9-9-4 20-7z',
   ]),
+  'Pay & Allowances': svg([
+    'M12 2v20',
+    'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
+  ]),
 }
 
 export const moduleGradients = {
@@ -48,6 +52,7 @@ export const moduleGradients = {
   Reports: ['#d97706', '#f59e0b'],
   Admin: ['#9f1239', '#6d1a1a'],
   Remittance: ['#0369a1', '#0ea5e9'],
+  'Pay & Allowances': ['#047857', '#10b981'],
 }
 
 export const iconFor = (name) => moduleIcons[name] || moduleIcons.Admin

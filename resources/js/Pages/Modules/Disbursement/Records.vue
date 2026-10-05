@@ -62,6 +62,7 @@
                 <th class="th">Mode</th>
                 <th class="th text-right">Amount</th>
                 <th class="th text-center">Doc</th>
+                <th class="th text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -76,6 +77,11 @@
                 <td class="td text-center">
                   <a v-if="r.attachment_path" :href="`/modules/disbursement/records/${r.id}/attachment`" target="_blank" class="link">View</a>
                   <span v-else class="text-slate-300">—</span>
+                </td>
+                <td class="td text-center">
+                  <Link :href="`/modules/disbursement/records/${r.id}/edit`" class="icon-btn" title="Edit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                  </Link>
                 </td>
               </tr>
             </tbody>
@@ -156,6 +162,9 @@ const formatDate = (d) => (d ? new Date(d).toLocaleDateString('en-US', { year: '
 .chip { font-size: 0.72rem; font-weight: 700; color: #6b21a8; background: #f3e8ff; padding: 0.2rem 0.55rem; border-radius: 9999px; white-space: nowrap; }
 .link { color: #7c3aed; font-weight: 600; }
 .link:hover { text-decoration: underline; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; height: 2rem; width: 2rem; border-radius: 0.55rem; border: 1px solid #e2e8f0; background: #fff; color: #64748b; transition: all 0.15s ease; }
+.icon-btn svg { height: 1.05rem; width: 1.05rem; }
+.icon-btn:hover { color: #7c3aed; border-color: #c4b5fd; background: #f5f3ff; }
 
 .page-link { min-width: 2rem; text-align: center; padding: 0.4rem 0.6rem; font-size: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; color: #475569; background: #fff; }
 .page-link:hover { background: #f1f5f9; }

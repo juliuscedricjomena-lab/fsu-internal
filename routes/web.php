@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisbursementController;
+use App\Http\Controllers\PayAllowancesController;
 use App\Http\Controllers\RemittanceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -40,10 +41,18 @@ Route::middleware('auth')->group(function () {
     // Legacy alias so existing dashboard links to /modules/collection keep working.
     Route::get('/modules/collection-home', fn () => redirect()->route('collection.index'))->name('modules.collection');
 
-    // Finance module — ALL_ACCESS, ADMINISTRATOR, CO_ADMIN, FINANCE_STAFF
-    Route::get('/modules/finance', fn () => Inertia::render('Modules/Finance'))
+    // Pay & Allowances module (Finance function) — ALL_ACCESS, ADMINISTRATOR, CO_ADMIN, FINANCE_STAFF
+    Route::prefix('modules/pay-allowances')
+        ->name('pay-allowances.')
         ->middleware('role:ALL_ACCESS,ADMINISTRATOR,CO_ADMIN,FINANCE_STAFF')
-        ->name('modules.finance');
+        ->group(function () {
+            Route::get('/', [PayAllowancesController::class, 'index'])->name('index');
+            Route::get('/create', [PayAllowancesController::class, 'create'])->name('create');
+            Route::post('/', [PayAllowancesController::class, 'store'])->name('store');
+            Route::get('/{payslip}/preview', [PayAllowancesController::class, 'preview'])->name('preview');
+            Route::get('/{payslip}/download', [PayAllowancesController::class, 'download'])->name('download');
+            Route::delete('/{payslip}', [PayAllowancesController::class, 'destroy'])->name('destroy');
+        });
 
     // Remittance module (Finance function) — ALL_ACCESS, ADMINISTRATOR, CO_ADMIN, FINANCE_STAFF
     Route::prefix('modules/remittance')
@@ -66,15 +75,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/records', [DisbursementController::class, 'records'])->name('records');
             Route::get('/records/create', [DisbursementController::class, 'create'])->name('create');
             Route::post('/records', [DisbursementController::class, 'store'])->name('store');
+            Route::get('/records/{disbursement}/edit', [DisbursementController::class, 'edit'])->name('edit');
+            Route::post('/records/{disbursement}', [DisbursementController::class, 'update'])->name('update');
             Route::get('/records/{disbursement}/attachment', [DisbursementController::class, 'attachment'])->name('attachment');
             Route::get('/matrix', [DisbursementController::class, 'matrix'])->name('matrix');
             Route::get('/particulars', [DisbursementController::class, 'particulars'])->name('particulars');
         });
-
-    // Reports module — available to every authenticated role.
-    Route::get('/modules/reports', fn () => Inertia::render('Modules/Reports'))
-        ->middleware('role:ALL_ACCESS,ADMINISTRATOR,CO_ADMIN,COLLECTION_STAFF,FINANCE_STAFF,DISBURSEMENT_OFFICER,VIEWER')
-        ->name('modules.reports');
 
     // Administrator module — ALL_ACCESS, ADMINISTRATOR only
     Route::prefix('modules/admin')
